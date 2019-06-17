@@ -3,33 +3,31 @@ import paho.mqtt.client as mqtt
 import time 
 import os
 
-client = None
-mqtt_looping = False
+client = "140.125.45.146"
+mqtt_looping = True
 
 topic = "push/test1"
 
 def on_connect(mq, userdata, rc, _):
     # subscribe when connected.
-    mq.subscribe(TOPIC_ROOT + '/#')
+    mq.subscribe(topic)
+    #mq.subscribe(TOPIC_ROOT + '/#')
 def com(aa):
     if aa=="open":
         os.system('ls')
     if aa=="mode":
         os.system('ls')
-    
+    print("get"+aa) 
     
 def on_message(mq, userdata, msg):
-    print "topic: %s" % msg.topic
-    print "payload: %s" % msg.payload
+   # print "topic: %s" % msg.topic
+   # print "payload: %s" % msg.payload
     com(msg.payload)
-    print "qos: %d" % msg.qos
+   # print "qos: %d" % msg.qos
 
 def mqtt_client_thread():
-    global client, mqtt_looping
-    client_id = "" # If broker asks client ID.
-    client = mqtt.Client(client_id=client_id)
-
-    # If broker asks user/password.
+    
+    client = mqtt.Client()
     user = "test"
     password = "test1234"
     client.username_pw_set(user, password)
@@ -37,7 +35,7 @@ def mqtt_client_thread():
     client.on_message = on_message
 
     try:
-        client.connect("localhost")
+        client.connect("140.125.45.146",1883,60)
     except:
         print "MQTT Broker is not online. Connect later."
 
@@ -47,6 +45,7 @@ def mqtt_client_thread():
     #mqtt_loop.loop_forever()
     cnt = 0
     while mqtt_looping:
+       
         client.loop()
 
         cnt += 1
@@ -56,13 +55,12 @@ def mqtt_client_thread():
             except:
                 time.sleep(1)
             cnt = 0
-
     print "quit mqtt thread"
     client.disconnect()
 
-def stop_all(*args):
-    global mqtt_looping
-    mqtt_looping = False
+#def stop_all(*args):
+#    global mqtt_looping
+#    mqtt_looping = False
 
 if __name__ == '__main__':
    #signal.signal(signal.SIGTERM, stop_all)
